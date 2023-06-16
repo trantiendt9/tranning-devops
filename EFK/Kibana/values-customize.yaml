@@ -1,0 +1,33 @@
+---
+#elasticsearchHosts: "http://elasticsearch-master:9200"
+elasticsearchHosts: "http://elasticsearch-master.logging-efk.svc.cluster.local:9200"
+
+# resources:
+#   requests:
+#     cpu: "1000m"
+#     memory: "2Gi"
+#   limits:
+#     cpu: "1000m"
+#     memory: "2Gi"
+
+resources:
+  requests:
+    cpu: "10m"
+    memory: "100Mi"
+  limits:
+    cpu: "1000m"
+    memory: "2Gi"
+
+
+# service:
+#   type: ClusterIP
+#   loadBalancerIP: ""
+#   port: 5601
+#   nodePort: ""
+
+service:
+  type: NodePort
+  loadBalancerIP: ""
+  port: 5601
+  nodePort: "32000"
+

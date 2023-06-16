@@ -1,0 +1,3 @@
+  # If setOutputHostEnvVar is false this value is ignored
+  #hosts: ["elasticsearch-client:9200"]
+  hosts: ["elasticsearch-master.logging-efk.svc.cluster.local:9200"]

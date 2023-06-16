@@ -1,1 +1,35 @@
-trantiendt9
+Huong dan install helm chart elastic-search
+# ref https://artifacthub.io/packages/helm/elastic/elasticsearch 
+
+1.Tao new namesapce
+kubectl create namespace logging-efk
+kubectl get ns
+
+2. Download helm chart elastic
+helm repo add elastic https://helm.elastic.co
+helm repo update
+helm search repo elastic --version 7
+helm pull elastic/elasticsearch --version 7.17.3
+
+3. Giai nen chart
+tar -xvzf elasticsearch-7.17.3.tgz
+
+4. Customize chart
+cp elasticsearch/values.yaml values-customize.yaml
+
+5. Install or upgrade helm chart / apply helm chart to K8S cluster
+
+#chart from internet
+helm upgrade -i elasticsearch -n logging-efk -f values-customize.yaml  elastic/elasticsearch 
+#chart from already download and extract
+helm upgrade -i elasticsearch -n logging-efk -f values-customize.yaml  elasticsearch
+
+#kiem tra ket qua:
+helm ls -n logging-efk
+kubectl get all -n logging-efk
+kubectl get svc n logging-efk
+
+6. Helm delete/ uninstall chart from K8s Cluster
+helm uninstall elasticsearch -n logging-efk
+
+7. Debug command

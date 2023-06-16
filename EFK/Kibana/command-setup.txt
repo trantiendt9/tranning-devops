@@ -1,0 +1,31 @@
+Huong dan install helm chart kibana
+
+1.Tao new namesapce
+kubectl create namespace logging-efk
+kubectl get ns
+
+2. Download helm chart elastic
+helm repo add elastic https://helm.elastic.co
+helm repo update
+helm search repo kibana --version 7
+helm pull elastic/kibana --version 7.17.3
+
+3. Giai nen chart
+tar -xvzf kibana-7.17.3.tgz
+
+4. Customize chart
+cp kibana/values.yaml values-customize.yaml
+
+5. Install or upgrade helm chart / apply helm chart to K8S cluster
+
+#chart from internet
+helm upgrade -i kibana -n logging-efk -f values-customize.yaml  elastic/kibana 
+#chart from already download and extract
+helm upgrade -i kibana -n logging-efk -f values-customize.yaml  kibana
+
+#kiem tra ket qua:
+helm ls -n logging-efk
+kubectl get all -n logging-efk
+
+6. Helm uninstall chart from K8s Cluster
+helm uninstall kibana -n logging-efk

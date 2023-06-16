@@ -1,0 +1,34 @@
+
+# replicas: 3
+# minimumMasterNodes: 2
+
+replicas: 1
+minimumMasterNodes: 1
+
+# resources:
+#   requests:
+#     cpu: "1000m"
+#     memory: "2Gi"
+#   limits:
+#     cpu: "1000m"
+#     memory: "2Gi"
+
+resources:
+  requests:
+    cpu: "1000m"
+    memory: "2Gi"
+  limits:
+    cpu: "1000m"
+    memory: "2Gi"
+
+# volumeClaimTemplate:
+#   accessModes: ["ReadWriteOnce"]
+#   resources:
+#     requests:
+#       storage: 30Gi
+
+volumeClaimTemplate:
+  accessModes: ["ReadWriteOnce"]
+  resources:
+    requests:
+      storage: 10Gi
