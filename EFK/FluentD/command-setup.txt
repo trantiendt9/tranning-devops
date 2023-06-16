@@ -4,54 +4,6 @@ Huong dan install helm chart fluentd
 kubectl create namespace logging-efk
 kubectl get ns
 
-2. Download helm chart elastic
-helm repo add stable https://charts.helm.sh/stable
-helm repo update
-helm search repo fluentd
-helm pull stable/fluentd-elasticsearch
-
-3. Giai nen chart
-tar -xvzf fluentd-elasticsearch-2.0.7.tgz
-
-4. Customize chart
-cp fluentd-elasticsearch/values.yaml values-custome.yaml
-
-5. Install or upgrade helm chart / apply helm chart to K8S cluster
-
-#chart from internet
-helm upgrade -i fluentd -n logging-efk -f values-custome.yaml  stable/fluentd-elasticsearch 
-#chart from already download and extract
-helm upgrade -i fluentd -n logging-efk -f values-custome.yaml  fluentd-elasticsearch
-#kiem tra ket qua:
-helm ls -n logging-efk
-kubectl get all -n logging-efk
-
-6. Helm delete/ uninstall chart from K8s Cluster
-helm uninstall fluentd -n logging-efk
-
-7. Debug command
-kubectl get secrets --namespace=logging-efk elasticsearch-master-credentials -ojsonpath='{.data.password}' | base64 -d
-qCxh6EIzdET4E9kG
-
------------
-Huong dan install helm chart fluentd
-
-1.Tao new namesapce
-kubectl create namespace logging-efk
-kubectl get ns
-
-2. Download values.yaml version 1.2
-#ref https://docs.fluentd.org/v/0.12/articles/kubernetes-fluentd
-
-wget https://github.com/fluent/fluentd-kubernetes-daemonset/blob/master/fluentd-daemonset-elasticsearch.yaml
-wget https://github.com/fluent/fluentd-kubernetes-daemonset/blob/master/fluentd-daemonset-elasticsearch-rbac.yaml
-
-
--------------------
-1.Tao new namesapce
-kubectl create namespace logging-efk
-kubectl get ns
-
 2. Download helm chart fluentd
 helm repo add kokuwa https://kokuwaio.github.io/helm-charts
 helm search repo fluentd
@@ -61,7 +13,15 @@ helm pull kokuwa/fluentd-elasticsearch --version 11.15.0
 tar -xvzf fluentd-elasticsearch-11.15.0.tgz
 
 4. Customize chart
-cp fluentd-elasticsearch/values.yaml values-custome.yaml
-vim values-custome.yaml
-edit line:
+cp fluentd-elasticsearch/values.yaml values-customize.yaml
 
+#chart from internet
+helm upgrade -i fluentd -n logging-efk -f values-customize.yaml  stable/fluentd-elasticsearch 
+#chart from already download and extract
+helm upgrade -i fluentd -n logging-efk -f values-customize.yaml  fluentd-elasticsearch
+#kiem tra ket qua:
+helm ls -n logging-efk
+kubectl get all -n logging-efk
+
+6. Helm delete/ uninstall chart from K8s Cluster
+helm uninstall fluentd -n logging-efk
