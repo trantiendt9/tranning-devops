@@ -1,0 +1,43 @@
+Huong dan install helm chart prometheus
+# ref https://artifacthub.io/packages/helm/prometheus-community/kube-prometheus-stack
+
+1.Tao new namesapce
+kubectl create namespace monitoring
+kubectl get ns
+
+2. Download helm chart elastic
+helm repo add prometheus-community https://prometheus-community.github.io/helm-charts
+helm repo update
+helm search repo prometheus-community/kube-prometheus-stack 
+helm pull prometheus-community/kube-prometheus-stack --version 46.8.0
+
+
+3. Giai nen chart
+tar -xvzf kube-prometheus-stack-46.8.0.tgz
+
+4. Customize chart
+cp cp kube-prometheus-stack/values.yaml values-customize.yaml
+
+5. Install or upgrade helm chart / apply helm chart to K8S cluster
+
+#chart from internet
+helm upgrade -i prometheus -n monitoring -f values-customize.yaml  prometheus-community/kube-prometheus-stack
+#chart from already download and extract
+helm upgrade -i prometheus -n monitoring -f values-customize.yaml  kube-prometheus-stack
+
+#kiem tra ket qua:
+helm ls -n monitoring
+kubectl get all -n monitoring
+kubectl get svc n monitoring
+
+#view UI prometheus (way 2)
+kubectl expose service prometheus-grafana --type=NodePort --target-port=3000 --name=prometheus-grafana-ext -n monitoring
+kubectl get service/prometheus-grafana-ext -n monitoring
+http://192.168.59.100:30978/
+username: admin
+password: prom-operator
+
+6. Helm delete/ uninstall chart from K8s Cluster
+helm uninstall prometheus -n monitoring
+
+
