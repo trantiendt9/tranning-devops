@@ -161,6 +161,7 @@ ingress:
   labels: {}
   hosts:
     - host: tientran-postgesql.do2506.click
+    - host: tientran-postgesql.do2506.click
       paths:
         - path: /
           pathType: Prefix

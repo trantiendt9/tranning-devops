@@ -1,0 +1,13 @@
+apiVersion: storage.k8s.io/v1
+kind: StorageClass
+metadata:
+  name: auto-efs-sc
+provisioner: efs.csi.aws.com
+parameters:
+  provisioningMode: efs-ap
+  fileSystemId: fs-092c6c97ee6e26288
+  # directoryPerms: "700" # Optional, default is "777"
+  # gidRangeStart: "1000" # Optional, for POSIX permissions
+  # gidRangeEnd: "2000"   # Optional, for POSIX permissions
+# reclaimPolicy: Retain # Optional, default is Delete
+volumeBindingMode: Immediate
