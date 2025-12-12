@@ -1,0 +1,14 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: nginx-service
+spec:
+  selector:
+    app: nginx # Chọn các Pod có label app: nginx
+  type: ClusterIP # Có thể dùng ClusterIP, NodePort, hoặc LoadBalancer tùy môi trường
+  ports:
+    - protocol: TCP
+      port: 80 # Cổng của Service
+      targetPort: 80 # Cổng của Container (đã định nghĩa trong Deployment)
+      # nodePort: 30080 # Tùy chọn: chỉ định cổng trên Node (nếu dùng NodePort)
+

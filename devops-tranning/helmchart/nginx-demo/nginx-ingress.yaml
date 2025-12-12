@@ -1,0 +1,39 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: nginx-ingress
+  annotations:
+      # Báo cho controller biết đây là Ingress cho ALB
+      kubernetes.io/ingress.class: alb
+      # Đặt tên nhóm chung, ví dụ: "do2506-group"
+      alb.ingress.kubernetes.io/group.name: alb-do2506-group
+      # Cấu hình ALB là internet-facing (hoặc internal nếu bạn muốn nội bộ)
+      alb.ingress.kubernetes.io/scheme: internet-facing
+      # Sử dụng IP target type (hiệu quả hơn, yêu cầu AWS CNI): ip or instance
+      alb.ingress.kubernetes.io/target-type: ip
+      # Chỉ định đường dẫn health check mới, ví dụ: /healthz hoặc /login
+      alb.ingress.kubernetes.io/healthcheck-path: /
+      # Tự động chuyển hướng HTTP sang HTTPS
+      alb.ingress.kubernetes.io/listen-ports: '[{"HTTP": 80}, {"HTTPS": 443}]'
+      alb.ingress.kubernetes.io/ssl-redirect: '443'
+      # Chỉ định ARN của chứng chỉ SSL từ AWS Certificate Manager (ACM)
+      # Thay thế ARN này bằng ARN thực tế của bạn
+      #alb.ingress.kubernetes.io/certificate-arn: arn:aws:acm:us-west-2:123456789012:certificate/uuid-cua-ban
+      alb.ingress.kubernetes.io/certificate-arn: arn:aws:acm:ap-southeast-1:372836560690:certificate/202c49bd-24b1-4513-a6dd-0379d106fe9a
+  labels:
+    app: nginx-ingress
+spec:
+  # BẮT BUỘC: Chỉ định Ingress Controller là "alb" 
+  ingressClassName: alb
+  rules:
+    # *** THÊM DÒNG NÀY ĐỂ KHAI BÁO HOST ***
+    - host: dtn2504-nginx.do2506.click
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: nginx-service # Tên Service Kubernetes của bạn
+                port:
+                  number: 80 # Cổng của Service
