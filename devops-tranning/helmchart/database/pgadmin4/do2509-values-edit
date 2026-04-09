@@ -329,8 +329,8 @@ secretKeys:
 ## Chart reinstall needed to apply changes
 env:
   ## Can be email or nickname
-  email: chart@domain.com
-  password: SuperSecret
+  email: trantiendt9@gmail.com
+  password: "123456"
   # pgpassfile: /var/lib/pgadmin/storage/pgadmin/file.pgpass
 
   ## Set context path for application (e.g. /pgadmin4/*)
