@@ -1,0 +1,26 @@
+pipeline {
+    agent any
+
+    stages {
+        stage('Checkout Code') {
+            steps {
+                echo 'Pulling code from GitHub...'
+                git url: 'https://github.com/trantiendt9/vue-nodejs-youtube-clone.git',
+                    branch: 'master',
+                    credentialsId: 'github-to-jenkins'
+            }
+        }
+
+        stage('Build') {
+            steps {
+                echo 'Building project...'
+            }
+        }
+
+        stage('Test') {
+            steps {
+                echo 'Running tests...'
+            }
+        }
+    }
+}
