@@ -1,0 +1,86 @@
+pipeline {
+    agent any
+    
+    environment {
+        // --- Thông tin AWS & Docker ---
+        AWS_ACCOUNT_ID = '919664459382' 
+        AWS_REGION     = 'ap-southeast-1' 
+        CLUSTER_NAME   = 'do2509' // Cần thay bằng tên Cluster thật của bạn
+        
+        // --- Thông tin Image ---
+        IMAGE_NAME     = 'do2509/tvtien'
+        IMAGE_TAG      = "youtube.v1.0.${env.BUILD_NUMBER}"
+        ECR_URL        = "${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_REGION}.amazonaws.com"
+        FULL_IMAGE     = "${ECR_URL}/${IMAGE_NAME}:${IMAGE_TAG}"
+        
+        // --- Cấu hình K8s ---
+        NAMESPACE      = "do2509-tvtien"
+        HELM_PATH      = "./helmchart"
+        VALUES_FILE    = "${HELM_PATH}/values-do2509.yaml"
+    }
+
+    stages {
+        stage('🚀 Checkout Code') {
+            steps {
+                git url: 'https://github.com/trantiendt9/vue-nodejs-youtube-clone.git',
+                    branch: 'master',
+                    credentialsId: 'github-to-jenkins'
+            }
+        }
+
+        stage('📦 Build Frontend') {
+            steps {
+                sh '''
+                    export NODE_OPTIONS=--openssl-legacy-provider
+                    npm install
+                    npm run build
+                '''
+            }
+        }
+
+        stage('🔐 Login & Push to ECR') {
+            steps {
+                script {
+                    // Login vào AWS ECR
+                    sh "aws ecr get-login-password --region ${AWS_REGION} | docker login --username AWS --password-stdin ${ECR_URL}"
+                    
+                    // Build và đẩy ảnh lên ECR
+                    sh "docker build -t ${FULL_IMAGE} ."
+                    sh "docker push ${FULL_IMAGE}"
+                }
+            }
+        }
+
+        stage('☸️ Deploy to K8s') {
+            steps {
+                script {
+                    // 1. Cập nhật Kubeconfig
+                    sh "aws eks update-kubeconfig --region ${AWS_REGION} --name ${CLUSTER_NAME}"
+                    
+                    // 2. Fix lỗi Webhook (Nếu tàn dư Nginx Ingress gây lỗi)
+                    sh "kubectl delete validatingwebhookconfigurations ingress-nginx-admission || true"
+                    
+                    // 3. Deploy bằng Helm với file values custom
+                    sh """
+                        helm upgrade --install youtube-clone ${HELM_PATH} \
+                        -f ${VALUES_FILE} \
+                        --namespace ${NAMESPACE} \
+                        --create-namespace \
+                        --set image.repository=${ECR_URL}/${IMAGE_NAME} \
+                        --set image.tag=${IMAGE_TAG}
+                    """
+                }
+            }
+        }
+    }
+
+    post {
+        success {
+            echo "✅ Triển khai thành công phiên bản ${IMAGE_TAG}"
+        }
+        always {
+            // Xóa ảnh để tránh đầy ổ cứng Jenkins Server
+            sh "docker rmi ${FULL_IMAGE} || true"
+        }
+    }
+}
