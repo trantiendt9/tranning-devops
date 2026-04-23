@@ -1,0 +1,70 @@
+pipeline {
+    agent any
+    
+    environment {
+        // Thay thông tin của bạn ở đây
+        AWS_ACCOUNT_ID = '919664459382' 
+        AWS_REGION     = 'ap-southeast-1' 
+        IMAGE_NAME     = 'do2509/tvtien'
+        IMAGE_TAG      = "${env.BUILD_NUMBER}" // Lấy số thứ tự build làm tag
+        ECR_URL        = "${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_REGION}.amazonaws.com"
+    }
+
+    stages {
+
+        stage('Checkout Code') {
+            steps {
+                echo 'Pulling code from GitHub...'
+                git url: 'https://github.com/trantiendt9/vue-nodejs-youtube-clone.git',
+                    branch: 'master',
+                    credentialsId: 'github-to-jenkins'
+            }
+        }
+
+        stage('Build') {
+            steps {
+                 sh '''
+                 		export NODE_OPTIONS=--openssl-legacy-provider
+                        npm install
+                        npm run build
+                    '''
+            }
+        }
+
+        stage('Login to ECR') {
+            steps {
+                script {
+                    // Lệnh login sử dụng IAM Role (không cần pass)
+                    sh "aws ecr get-login-password --region ${AWS_REGION} | docker login --username AWS --password-stdin ${ECR_URL}"
+                }
+            }
+        }
+
+        stage('Build Docker Image') {
+            steps {
+                script {
+                    // Build ảnh
+                    sh "docker build -t ${IMAGE_NAME}:${IMAGE_TAG} ."
+                    // Tag ảnh theo chuẩn ECR
+                    sh "docker tag ${IMAGE_NAME}:${IMAGE_TAG} ${ECR_URL}/${IMAGE_NAME}:${IMAGE_TAG}"
+                }
+            }
+        }
+
+        stage('Push to ECR') {
+            steps {
+                script {
+                    // Đẩy ảnh lên AWS
+                    sh "docker push ${ECR_URL}/${IMAGE_NAME}:${IMAGE_TAG}"
+                }
+            }
+        }
+        
+        stage('Cleanup') {
+            steps {
+                // Xóa ảnh local để tránh đầy ổ cứng server
+                sh "docker rmi ${ECR_URL}/${IMAGE_NAME}:${IMAGE_TAG}"
+            }
+        }
+    }
+}
